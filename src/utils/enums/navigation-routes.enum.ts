@@ -1,5 +1,5 @@
 export enum NavigationRoutes {
-    SignIn = "signin",
-    SignUp = "signup",
-    Dashboard = "dashboard",
+  SignIn = "signin",
+  SignUp = "signup",
+  Board = "board",
 }
