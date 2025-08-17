@@ -10,19 +10,17 @@ import {
   setLocalStorageTokenExpiryDate,
   setLocalStorageToken,
   getLocalStorageTokenExpiryDate,
+  removeLocalStorageToken,
+  removeLocalStorageTokenExpiryDate,
 } from "../utils/auth";
 import axiosInstance from "../api/axios.config";
 import { ApiEndpoints } from "../utils/enums/api-endpoints.enum";
 import type { User } from "../utils/models/user.model";
+import type { AuthContextType } from "../utils/types/auth.types";
 
-type AuthContextType = {
-  isAuthenticated: boolean;
-  user: User | null;
-  login: (login: string, password: string) => void;
-  logout: () => void;
-};
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 type AuthProviderProps = {
   children: ReactNode;
@@ -34,11 +32,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     getLocalStorageTokenExpiryDate()
   );
   const [user, setUser] = useState<User | null>(null);
-
-  let isAuthenticated = !!token;
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
 
   useEffect(() => {
-    isAuthenticated = !!token;
+    setIsAuthenticated(!!token);
 
     if (token) {
       axiosInstance.defaults.headers.common[
@@ -47,38 +44,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLocalStorageToken(token);
     } else {
       delete axiosInstance.defaults.headers.common["Authorization"];
-      localStorage.removeItem("token");
+      removeLocalStorageToken();
+      removeLocalStorageTokenExpiryDate();
     }
   }, [token]);
 
-  const login = async (login: string, password: string) => {
-    const response = await axiosInstance.post(ApiEndpoints.AuthLogin, {
-      login: login,
-      password: password,
-    });
+  const login = async (
+    username: string,
+    password: string
+  ): Promise<boolean> => {
+    try {
+      const response = await axiosInstance.post(ApiEndpoints.AuthLogin, {
+        username: username,
+        password: password,
+      });
 
-    if (response.status !== 200) {
-      console.error("Login failed:", response.data);
-      return;
+      if (response.status !== 200) {
+        console.error("Login failed:", response.data);
+        return false;
+      }
+
+      setLocalStorageToken(response.data.token);
+      setLocalStorageTokenExpiryDate(
+        new Date(response.data.expiryDate).toISOString()
+      );
+      setToken(response.data.token);
+      setTokenExpiryDate(new Date(response.data.expiryDate).toISOString());
+      setUser({ id: response.data.id, username: username });
+      setIsAuthenticated(true);
+      return true;
+    } catch (error) {
+      console.error("Login error:", error);
+      return false;
     }
-
-    console.log("LOG IN:", response.data);
-    setLocalStorageToken(response.data.token);
-    setLocalStorageTokenExpiryDate(
-      new Date(response.data.expiryDate).toISOString()
-    );
-    setToken(response.data.token);
-    setTokenExpiryDate(new Date(response.data.expiryDate).toISOString());
-    setUser({ id: response.data.id, username: login });
-    isAuthenticated = !!token;
   };
 
   const logout = () => {
     setToken(null);
     setTokenExpiryDate(null);
     setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("expiryDate");
+    setIsAuthenticated(false);
+    removeLocalStorageToken();
+    removeLocalStorageTokenExpiryDate();
   };
 
   return (
@@ -86,12 +93,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };

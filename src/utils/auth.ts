@@ -8,10 +8,18 @@ export const setLocalStorageToken = (token: string) => {
   sessionStorage.setItem(SessionStorageEnum.Token, token);
 };
 
+export const removeLocalStorageToken = () => {
+  sessionStorage.removeItem(SessionStorageEnum.Token);
+};
+
 export const getLocalStorageTokenExpiryDate = () => {
   return sessionStorage.getItem(SessionStorageEnum.ExpiryDate);
 };
 
 export const setLocalStorageTokenExpiryDate = (expiryDate: string) => {
   sessionStorage.setItem(SessionStorageEnum.ExpiryDate, expiryDate);
+};
+
+export const removeLocalStorageTokenExpiryDate = () => {
+  sessionStorage.removeItem(SessionStorageEnum.ExpiryDate);
 };

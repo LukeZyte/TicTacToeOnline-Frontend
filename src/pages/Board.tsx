@@ -1,58 +1,55 @@
+import { Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import {
-  connectToHub,
-  createBoard,
-  joinBoard,
-} from "../api/services/signalR.service";
-import { Button, OutlinedInput } from "@mui/material";
+import { useParams } from "react-router";
+import TicTacToeBoard from "../components/TicTacToeBoard";
+import type { GameSymbols } from "../utils/enums/game-symbols.enum";
+
+enum BoardState {
+  Waiting = 0,
+  InProgress = 1,
+  Finished = 2,
+}
+
+interface Player {
+  id: string;
+  username: string;
+  symbol: GameSymbols;
+}
+
+interface GameState {
+  boardState: BoardState;
+  boardCode: string;
+  players: Player[];
+  turnIndex?: 0 | 1;
+  winner?: Player | null;
+}
 
 const Board = () => {
-  const [boardCode, setBoardCode] = useState<string | null>(null);
+  const { boardCode } = useParams<{ boardCode: string }>();
+  if (!boardCode) {
+    console.error("Board code is required");
+    return <Typography>Error: Invalid Board code</Typography>;
+  }
+
+  const INITIAL_GAME_STATE: GameState = {
+    boardState: BoardState.Waiting,
+    boardCode: boardCode!,
+    players: [],
+    turnIndex: 1,
+    winner: null,
+  };
 
   useEffect(() => {
-    const initializeConnection = async () => {
-      try {
-        await connectToHub();
-      } catch (error) {
-        console.error("Error connecting to hub:", error);
-      }
-    };
-    initializeConnection();
-  }, []);
+    console.log("Board code:", boardCode);
+  }, [boardCode]);
 
-  const onCreateBoardClick = async () => {
-    const response = await createBoard();
-    if (response) {
-      setBoardCode(response);
-      console.log("Board created successfully:", response);
-    } else {
-      console.error("Failed to create board");
-    }
-  };
-
-  const onJoinBoardClick = async () => {
-    if (!boardCode) {
-      console.error("No board code available to join");
-      return;
-    }
-    const response = await joinBoard(boardCode);
-    if (response) {
-      console.log("Board joined successfully:", response);
-    } else {
-      console.error("Failed to join board");
-    }
-  };
+  const [gameState, setGameState] = useState(INITIAL_GAME_STATE);
 
   return (
-    <div>
-      <Button onClick={onCreateBoardClick}>Create Board</Button>
-      <OutlinedInput
-        value={boardCode || ""}
-        onChange={(e) => setBoardCode(e.target.value)}
-        placeholder="Enter board code"
-      />
-      <Button onClick={onJoinBoardClick}>Join Board</Button>
-    </div>
+    <Container>
+      <Typography>Board: {boardCode}</Typography>
+      {/* <TicTacToeBoard turnIndex={gameState.turnIndex} /> */}
+    </Container>
   );
 };
 

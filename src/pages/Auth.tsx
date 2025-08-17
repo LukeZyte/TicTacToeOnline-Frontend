@@ -17,9 +17,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { NavigationRoutes } from "../utils/enums/navigation-routes.enum";
 import { useForm, Controller } from "react-hook-form";
-import axiosInstance from "../api/axios.config";
-import { ApiEndpoints } from "../utils/enums/api-endpoints.enum";
-import { SessionStorageEnum } from "../utils/enums/session-storage.enum";
+import { useAuth } from "../hooks/useAuth.hook";
 
 type FormData = {
   username: string;
@@ -30,6 +28,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
 
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -46,30 +45,18 @@ const Auth = () => {
     navigate(`/${NavigationRoutes.SignUp}`);
   };
 
-  const onSignInSubmit = (data: FormData) => {
+  const onSignInSubmit = async (data: FormData) => {
     setLoginLoading(true);
 
-    axiosInstance
-      .post(ApiEndpoints.AuthLogin, {
-        username: data.username,
-        password: data.password,
-      })
-      .then((response) => {
-        console.log("LOG IN:", response.data);
-        sessionStorage.setItem(SessionStorageEnum.Token, response.data.token);
-        sessionStorage.setItem(
-          SessionStorageEnum.ExpiryDate,
-          response.data.expiryDate
-        );
+    const success = await login(data.username, data.password);
+    setLoginLoading(false);
 
-        navigate(`/${NavigationRoutes.Board}`);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      })
-      .finally(() => {
-        setLoginLoading(false);
-      });
+    if (success) {
+      navigate(`/${NavigationRoutes.Dashboard}`);
+    } else {
+      console.error("Login failed");
+      navigate(`/${NavigationRoutes.SignIn}`);
+    }
   };
 
   return (

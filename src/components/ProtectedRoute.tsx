@@ -1,6 +1,6 @@
 import { Navigate } from "react-router";
-import { useAuth } from "../store/auth.context";
 import { NavigationRoutes } from "../utils/enums/navigation-routes.enum";
+import { useAuth } from "../hooks/useAuth.hook";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;

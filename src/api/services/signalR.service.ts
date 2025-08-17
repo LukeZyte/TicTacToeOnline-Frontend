@@ -42,6 +42,11 @@ export const connectToHub = async () => {
     console.log("Board:", finalBoard);
   });
 
+  connection.on("PlayerJoined", (response) => {
+    const [userId, username] = response.split(":");
+    console.log(`Player '${username}' (with id: ${userId}) joined the game.`);
+  });
+
   connection.on("PlayerLeft", (login) => {
     console.log(`Player ${login} left the game.`);
   });

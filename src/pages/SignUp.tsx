@@ -16,7 +16,7 @@ import {
 import { useState } from "react";
 import { NavigationRoutes } from "../utils/enums/navigation-routes.enum";
 import { useNavigate } from "react-router";
-import { Controller, set, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import axiosInstance from "../api/axios.config";
 import { ApiEndpoints } from "../utils/enums/api-endpoints.enum";
 
