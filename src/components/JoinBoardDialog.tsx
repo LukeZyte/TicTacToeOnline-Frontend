@@ -74,7 +74,7 @@ const JoinBoardDialog: React.FC<JoinBoardDialogProps> = ({ open, onClose }) => {
         transition: Transition,
       }}
       keepMounted
-      onClose={onClose}
+      onClose={() => onClose(null)}
       maxWidth="xs"
       fullWidth
     >
@@ -134,7 +134,7 @@ const JoinBoardDialog: React.FC<JoinBoardDialogProps> = ({ open, onClose }) => {
           <Button onClick={onClear} fullWidth>
             Clear
           </Button>
-          <Button onClick={onClose} fullWidth>
+          <Button onClick={() => onClose(null)} fullWidth>
             Close
           </Button>
         </Stack>
