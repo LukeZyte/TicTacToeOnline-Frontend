@@ -1,8 +1,10 @@
 import { Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import TicTacToeBoard from "../components/TicTacToeBoard";
+import TicTacToeBoard from "../components/board/TicTacToeBoard";
 import type { GameSymbols } from "../utils/enums/game-symbols.enum";
+import BoardInfo from "../components/board/BoardInfo";
+import WaitingView from "../components/board/WaitingView";
 
 enum BoardState {
   Waiting = 0,
@@ -20,7 +22,7 @@ interface GameState {
   boardState: BoardState;
   boardCode: string;
   players: Player[];
-  turnIndex?: 0 | 1;
+  currentPlayerIndex: 0 | 1;
   winner?: Player | null;
 }
 
@@ -35,7 +37,7 @@ const Board = () => {
     boardState: BoardState.Waiting,
     boardCode: boardCode!,
     players: [],
-    turnIndex: 1,
+    currentPlayerIndex: 1,
     winner: null,
   };
 
@@ -46,9 +48,16 @@ const Board = () => {
   const [gameState, setGameState] = useState(INITIAL_GAME_STATE);
 
   return (
-    <Container>
-      <Typography>Board: {boardCode}</Typography>
-      {/* <TicTacToeBoard turnIndex={gameState.turnIndex} /> */}
+    <Container
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+      }}
+    >
+      <BoardInfo boardCode={boardCode} />
+      {gameState.boardState === BoardState.Waiting && <WaitingView />}
+      <TicTacToeBoard currentPlayerIndex={gameState.currentPlayerIndex} />
     </Container>
   );
 };

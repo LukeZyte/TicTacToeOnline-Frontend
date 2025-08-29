@@ -29,10 +29,6 @@ export const connectToHub = async () => {
     return;
   }
 
-  connection.on("RoomReady", (code) => {
-    console.log("Board is ready:", code);
-  });
-
   connection.on("MoveMade", (cellIndex, symbol, nextPlayerIndex) => {
     console.log("Move:", cellIndex, symbol, nextPlayerIndex);
   });

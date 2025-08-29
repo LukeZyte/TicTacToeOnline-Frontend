@@ -2,10 +2,10 @@ import { Box, Typography } from "@mui/material";
 import { useState } from "react";
 
 interface TocTacToeBoardProps {
-  turnIndex: 0 | 1;
+  currentPlayerIndex: 0 | 1;
 }
 
-const TicTacToeBoard = ({ turnIndex }: TocTacToeBoardProps) => {
+const TicTacToeBoard = ({ currentPlayerIndex }: TocTacToeBoardProps) => {
   interface BoardTile {
     selected: boolean;
     value: 0 | 1 | null;
@@ -39,7 +39,7 @@ const TicTacToeBoard = ({ turnIndex }: TocTacToeBoardProps) => {
         newBoard[rowIndex][colIndex] = {
           ...newBoard[rowIndex][colIndex],
           selected: true,
-          value: turnIndex,
+          value: currentPlayerIndex,
         };
         return newBoard;
       });
